@@ -22,12 +22,13 @@
                         <td class="botoes-usuarios">
                             <a href="{{ route('usuarios.show', ['usuario' => $usuario->id]) }}"><i class="bi bi-eye-fill acoes btn btn-primary"></i></a>
                             <a href="{{ route('usuarios.edit', ['usuario' => $usuario->id]) }}"><i class="bi bi-pencil-square acoes btn btn-secondary"></i></a>
+
                             <form id="delete-form-{{ $usuario->id }}" action="{{ route('usuarios.destroy', ['usuario' => $usuario->id]) }}" method="POST">
                                 @csrf
                                 @method('delete')
                                 <button type="button" onclick="confirmDelete({{ $usuario->id }})"> <i class="bi bi-trash3-fill btn btn-danger"></i></button>
-
                             </form>
+                            
                         </td>
                     </tr>
                 @empty
