@@ -8,6 +8,8 @@ use Exception;
 use Illuminate\Http\Request;
 use PhpParser\Node\Stmt\TryCatch;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UsuarioPdfMail;
 
 class UsuarioController extends Controller
 {
@@ -32,6 +34,8 @@ class UsuarioController extends Controller
     public function store(UsuarioRequest $request)
     {
         try {
+
+            // Criar um novo usuário com os dados do formulário
             Usuario::create([
                 'nome' => $request->nome,
                 'email' => $request->email,
@@ -46,6 +50,7 @@ class UsuarioController extends Controller
     // Método para exibir o formulário de edição de usuário
     public function edit(Usuario $usuario)
     {
+        // Passa o usuário para a view de edição
         return view('usuarios.editarUsuarios', compact('usuario'));
     }
 
@@ -67,6 +72,7 @@ class UsuarioController extends Controller
     // Método para exibir os detalhes de um usuário específico
     public function show(Usuario $usuario)
     {
+        // Passa o usuário para a view de visualização
         return view('usuarios.visualizarUsuarios', compact('usuario'));
     }
 
@@ -74,22 +80,53 @@ class UsuarioController extends Controller
     public function destroy(Usuario $usuario)
     {
         try {
+            // Exclui o usuário do banco de dados
             $usuario->delete();
             return redirect()->route('usuarios.index')->with('success', 'Usuário excluido com sucesso!');
-            
         } catch (Exception $e) {
             return back()->withInput()->with('error', 'Erro ao excluir usuário!');
         }
     }
-    
+
     // Método para gerar PDF dos detalhes do usuário
-    public function generatePdf(Usuario $usuario){
+    public function generatePdf(Usuario $usuario)
+    {
+        try {
+            // Passar os dados para a view de geração de PDF
+            $pdf = Pdf::loadView('usuarios.geradorPdf', compact('usuario'))->setPaper('a4', 'portrait');
 
-        // Passar os dados para a view de geração de PDF
-        $pdf = Pdf::loadView('usuarios.geradorPdf', compact('usuario'))->setPaper('a4', 'landscape');
-
-        // Gerar e baixar o PDF com os dados do usuário
-        return $pdf->download('DadosUsuario.pdf');
+            // Gerar e baixar o PDF com os dados do usuário
+            return $pdf->download('DadosUsuario.pdf');
+        } catch (Exception $e) {
+            return back()->withInput()->with('error', 'Erro ao gerar PDF do usuário!');
+        }
     }
-    
+
+    // Método para enviar o PDF dos detalhes do usuário por email
+    public function enviarEmailPdf(Usuario $usuario)
+    {
+        try {
+            // Passar os dados para a view de geração de PDF
+            $pdf = Pdf::loadView('usuarios.geradorPdf', compact('usuario'))->setPaper('a4', 'portrait');
+
+            // Caminho para salvar o PDF temporariamente
+           $pdfPath = storage_path("app/public/{$usuario->id}.pdf");
+
+           // Salvar o PDF localmente
+           $pdf->save($pdfPath);
+           
+           // Enviar o email com o PDF em anexo
+           Mail::to($usuario->email)->send(new UsuarioPdfMail($pdfPath, $usuario));
+
+           // Remover o arquivo PDF temporário após o envio do email
+           if (file_exists($pdfPath)){
+            unlink($pdfPath);
+           }
+
+        return redirect()->route('usuarios.index')->with('success', 'Email enviado com sucesso!');
+
+        } catch (Exception $e) {
+            return back()->withInput()->with('error', 'Erro ao gerar PDF do usuário!');
+        }
+    }
 }

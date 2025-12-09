@@ -15,3 +15,4 @@ Route::put('usuarios/atualizar/{usuario}', [UsuarioController::class, 'update'])
 Route::get('/usuarios/visulizar/{usuario}', [UsuarioController::class, 'show'])->name('usuarios.show');
 Route::delete('/usuarios/excluir/{usuario}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
 Route::get('/usuarios/gerar-pdf/{usuario}', [UsuarioController::class, 'generatePdf'])->name('usuarios.generatePdf');
+Route::get('/usuarios/enviar-pdf/{usuario}', [UsuarioController::class, 'enviarEmailPdf'])->name('usuarios.enviarEmailPdf');
