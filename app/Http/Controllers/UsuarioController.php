@@ -7,6 +7,7 @@ use App\Models\Usuario;
 use Exception;
 use Illuminate\Http\Request;
 use PhpParser\Node\Stmt\TryCatch;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class UsuarioController extends Controller
 {
@@ -79,6 +80,16 @@ class UsuarioController extends Controller
         } catch (Exception $e) {
             return back()->withInput()->with('error', 'Erro ao excluir usuário!');
         }
+    }
+    
+    // Método para gerar PDF dos detalhes do usuário
+    public function generatePdf(Usuario $usuario){
+
+        // Passar os dados para a view de geração de PDF
+        $pdf = Pdf::loadView('usuarios.geradorPdf', compact('usuario'))->setPaper('a4', 'landscape');
+
+        // Gerar e baixar o PDF com os dados do usuário
+        return $pdf->download('DadosUsuario.pdf');
     }
     
 }

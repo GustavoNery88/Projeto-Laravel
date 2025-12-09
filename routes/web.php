@@ -14,3 +14,4 @@ Route::get('/usuarios/editar/{usuario}', [UsuarioController::class, 'edit'])->na
 Route::put('usuarios/atualizar/{usuario}', [UsuarioController::class, 'update'])->name('usuarios.update');
 Route::get('/usuarios/visulizar/{usuario}', [UsuarioController::class, 'show'])->name('usuarios.show');
 Route::delete('/usuarios/excluir/{usuario}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+Route::get('/usuarios/gerar-pdf/{usuario}', [UsuarioController::class, 'generatePdf'])->name('usuarios.generatePdf');
