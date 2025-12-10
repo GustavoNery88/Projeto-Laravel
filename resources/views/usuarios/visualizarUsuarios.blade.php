@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Formulário de Edição de Usuários')
+@section('title', 'Detalhes do Usuário')
 
 @section('content')
     <div class="card">
@@ -8,10 +8,7 @@
             <h3>Detalhes do Usuário</h3>
             <div>
                 <a class="btn btn-secondary" href="{{ route('usuarios.generatePdf', ['usuario' => $usuario->id]) }}">Gerar PDF</a>
-
-
                 <a class="btn btn-secondary" href="{{ route('usuarios.enviarEmailPdf', ['usuario' => $usuario->id]) }}">Enviar E-mail</a>
-                
             </div>
 
         </div>

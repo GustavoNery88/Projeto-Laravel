@@ -10,6 +10,7 @@ use PhpParser\Node\Stmt\TryCatch;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\UsuarioPdfMail;
+use Carbon\Carbon;
 
 class UsuarioController extends Controller
 {
@@ -110,23 +111,61 @@ class UsuarioController extends Controller
             $pdf = Pdf::loadView('usuarios.geradorPdf', compact('usuario'))->setPaper('a4', 'portrait');
 
             // Caminho para salvar o PDF temporariamente
-           $pdfPath = storage_path("app/public/{$usuario->id}.pdf");
+            $pdfPath = storage_path("app/public/{$usuario->id}.pdf");
 
-           // Salvar o PDF localmente
-           $pdf->save($pdfPath);
-           
-           // Enviar o email com o PDF em anexo
-           Mail::to($usuario->email)->send(new UsuarioPdfMail($pdfPath, $usuario));
+            // Salvar o PDF localmente
+            $pdf->save($pdfPath);
 
-           // Remover o arquivo PDF temporário após o envio do email
-           if (file_exists($pdfPath)){
-            unlink($pdfPath);
-           }
+            // Enviar o email com o PDF em anexo
+            Mail::to($usuario->email)->send(new UsuarioPdfMail($pdfPath, $usuario));
 
-        return redirect()->route('usuarios.index')->with('success', 'Email enviado com sucesso!');
+            // Remover o arquivo PDF temporário após o envio do email
+            if (file_exists($pdfPath)) {
+                unlink($pdfPath);
+            }
 
+            return redirect()->route('usuarios.index')->with('success', 'Email enviado com sucesso!');
         } catch (Exception $e) {
             return back()->withInput()->with('error', 'Erro ao gerar PDF do usuário!');
         }
+    }
+
+    // Método para buscar usuários pelo nome ou email
+    public function search(Request $request)
+    {
+        // Consulta na tabela de usuários
+        $usuarios = Usuario::query()
+            // Adiciona condição para o nome se ele estiver presente na requisição
+            // Verifica se o campo nome NÃO está vazio
+            ->when($request->filled('nome'), function ($query) use ($request) {
+                // Se estiver preenchido faz WHERE nome LIKE '%valor digitado%'
+                $query->where('nome', 'LIKE', "%{$request->nome}%");
+            })
+            // Adiciona condição para o email se ele estiver presente na requisição
+            // Verifica se o campo email NÃO está vazio
+            ->when($request->filled('email'), function ($query) use ($request) {
+                // Se estiver preenchido faz WHERE email LIKE '%valor digitado%'
+                $query->where('email', 'LIKE', "%{$request->email}%");
+            })
+
+             // Adiciona condição para a data de criação início se ela estiver presente na requisição
+            // Verifica se o campo data-criacao-inicio NÃO está vazio
+             ->when($request->filled('data_criacao_inicio'), function ($query) use ($request) {
+                // Se estiver preenchido faz a busca dos registros onde created_at é maior ou igual ao valor digitado
+                // Usa a classe Carbon para converter a data no formato adequado
+                $query->where('created_at', '>=', Carbon::parser($request->data_criacao_inicio));
+            })
+            // Adiciona condição para a data de criação final se ela estiver presente na requisição
+            // Verifica se o campo data-criacao-final NÃO está vazio
+            ->when($request->filled('data_criacao_final'), function ($query) use ($request) {
+                // Se estiver preenchido faz a busca dos registros onde created_at é menor ou igual ao valor digitado
+                // Usa a classe Carbon para converter a data no formato adequado
+                $query->where('created_at', '<=', Carbon::parser($request->data_criacao_final));
+            })
+            ->orderByDesc('id') // Ordena do maior ID para o menor
+            ->paginate(3) 
+            ->withQueryString(); // Mantém os filtros ao mudar de página
+
+        return view('usuarios.listarUsuarios', compact('usuarios'));
     }
 }
