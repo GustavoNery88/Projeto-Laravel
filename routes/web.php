@@ -17,3 +17,4 @@ Route::delete('/usuarios/excluir/{usuario}', [UsuarioController::class, 'destroy
 Route::get('/usuarios/gerar-pdf/{usuario}', [UsuarioController::class, 'generatePdf'])->name('usuarios.generatePdf');
 Route::get('/usuarios/enviar-pdf/{usuario}', [UsuarioController::class, 'enviarEmailPdf'])->name('usuarios.enviarEmailPdf');
 Route::get('/usuarios/buscar', [UsuarioController::class, 'search'])->name('usuarios.search');
+Route::get('/usuarios/gerar-pdf-pesquisa', [UsuarioController::class, 'generatePdfSearch'])->name('usuarios.generatePdfSearch');

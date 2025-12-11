@@ -93,10 +93,11 @@ class UsuarioController extends Controller
     public function generatePdf(Usuario $usuario)
     {
         try {
-            // Passar os dados para a view de geração de PDF
+            // Passa os dados para a view de geração de PDF
+            // Passa os dados para usuario/geradorPdf.blade.php
             $pdf = Pdf::loadView('usuarios.geradorPdf', compact('usuario'))->setPaper('a4', 'portrait');
 
-            // Gerar e baixar o PDF com os dados do usuário
+           // Gerar e baixar o PDF com os dados do usuário com nome do arquivo e extensão do PDF
             return $pdf->download('DadosUsuario.pdf');
         } catch (Exception $e) {
             return back()->withInput()->with('error', 'Erro ao gerar PDF do usuário!');
@@ -133,39 +134,78 @@ class UsuarioController extends Controller
     // Método para buscar usuários pelo nome ou email
     public function search(Request $request)
     {
-        // Consulta na tabela de usuários
-        $usuarios = Usuario::query()
-            // Adiciona condição para o nome se ele estiver presente na requisição
-            // Verifica se o campo nome NÃO está vazio
-            ->when($request->filled('nome'), function ($query) use ($request) {
-                // Se estiver preenchido faz WHERE nome LIKE '%valor digitado%'
-                $query->where('nome', 'LIKE', "%{$request->nome}%");
-            })
-            // Adiciona condição para o email se ele estiver presente na requisição
-            // Verifica se o campo email NÃO está vazio
-            ->when($request->filled('email'), function ($query) use ($request) {
-                // Se estiver preenchido faz WHERE email LIKE '%valor digitado%'
-                $query->where('email', 'LIKE', "%{$request->email}%");
-            })
+        // Consulta na tabela usuários
+        $query = Usuario::query();
 
-             // Adiciona condição para a data de criação início se ela estiver presente na requisição
-            // Verifica se o campo data-criacao-inicio NÃO está vazio
-             ->when($request->filled('data_criacao_inicio'), function ($query) use ($request) {
-                // Se estiver preenchido faz a busca dos registros onde created_at é maior ou igual ao valor digitado
-                // Usa a classe Carbon para converter a data no formato adequado
-                $query->where('created_at', '>=', Carbon::parser($request->data_criacao_inicio));
-            })
-            // Adiciona condição para a data de criação final se ela estiver presente na requisição
-            // Verifica se o campo data-criacao-final NÃO está vazio
-            ->when($request->filled('data_criacao_final'), function ($query) use ($request) {
-                // Se estiver preenchido faz a busca dos registros onde created_at é menor ou igual ao valor digitado
-                // Usa a classe Carbon para converter a data no formato adequado
-                $query->where('created_at', '<=', Carbon::parser($request->data_criacao_final));
-            })
-            ->orderByDesc('id') // Ordena do maior ID para o menor
-            ->paginate(3) 
-            ->withQueryString(); // Mantém os filtros ao mudar de página
+        // Filtrar por nome se fornecido
+        if ($request->filled('nome')) {
+            // Filtrar por nome
+            $query->where('nome', 'LIKE', '%' . $request->nome . '%');
+        }
+        // Filtrar por nome se fornecido
+        if ($request->filled('email')) {
+            // Filtrar por email
+            $query->where('email', 'LIKE', '%' . $request->email . '%');
+        }
+        // Filtrar por nome se fornecido
+        if ($request->filled('data_criacao_inicio')) {
+            // Filtrar por data de criação inicial
+            $query->where('created_at', '>=', Carbon::parse($request->data_criacao_inicio));
+        }
+        // Filtrar por data de criação final se fornecido
+        if ($request->filled('data_criacao_final')) {
+            // Filtrar por data de criação final
+            $query->where('created_at', '<=', Carbon::parse($request->data_criacao_final));
+        }
+
+        // Coloca na variável usuários os resultados da query com paginação e ordenação
+        $usuarios = $query->orderByDesc('id')
+            ->paginate(3)
+            ->withQueryString();
 
         return view('usuarios.listarUsuarios', compact('usuarios'));
+    }
+
+    // Método para gerar PDF da busca de pesquisa de usuários
+    public function generatePdfSearch(Request $request)
+    {
+        try {
+            // Consulta na tabela usuários
+            $query = Usuario::query();
+
+            // Filtrar por nome se fornecido
+            if ($request->filled('nome')) {
+                // Filtrar por nome
+                $query->where('nome', 'LIKE', '%' . $request->nome . '%');
+            }
+            // Filtrar por nome se fornecido
+            if ($request->filled('email')) {
+                // Filtrar por email
+                $query->where('email', 'LIKE', '%' . $request->email . '%');
+            }
+            // Filtrar por nome se fornecido
+            if ($request->filled('data_criacao_inicio')) {
+                // Filtrar por data de criação inicial
+                $query->where('created_at', '>=', Carbon::parse($request->data_criacao_inicio));
+            }
+            // Filtrar por data de criação final se fornecido
+            if ($request->filled('data_criacao_final')) {
+                // Filtrar por data de criação final
+                $query->where('created_at', '<=', Carbon::parse($request->data_criacao_final));
+            }
+
+            // Coloca na variável os usuários do resultado da query
+            $usuarios = $query->orderByDesc('id')->get();
+
+            // Passa os dados para a view de geração de PDF
+            // Passa os dados para usuario/geradorPdfPesquisa.blade.php
+            $pdf = Pdf::loadView('usuarios.geradorPdfPesquisa', compact('usuarios'))->setPaper('a4', 'portrait');
+
+            // Gerar e baixar o PDF com os dados do usuário com nome do arquivo e extensão do PDF
+            return $pdf->download('DadosUsuario.pdf');
+        
+        } catch (Exception $e) {
+            return back()->withInput()->with('error', 'Erro ao gerar PDF da pesquisa!');
+        }
     }
 }
