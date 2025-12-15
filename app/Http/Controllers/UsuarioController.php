@@ -11,6 +11,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\UsuarioPdfMail;
 use Carbon\Carbon;
+use Illuminate\Foundation\Auth\User;
+use Illuminate\Support\Str;
+
 
 class UsuarioController extends Controller
 {
@@ -32,6 +35,7 @@ class UsuarioController extends Controller
     }
 
     // Método para armazenar um novo usuário no banco de dados
+
     public function store(UsuarioRequest $request)
     {
         try {
@@ -42,6 +46,7 @@ class UsuarioController extends Controller
                 'email' => $request->email,
                 'password' => ($request->password),
             ]);
+
             return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
         } catch (Exception $e) {
             return back()->withInput()->with('error', 'Erro ao cadastrar usuário!');
@@ -97,7 +102,7 @@ class UsuarioController extends Controller
             // Passa os dados para usuario/geradorPdf.blade.php
             $pdf = Pdf::loadView('usuarios.geradorPdf', compact('usuario'))->setPaper('a4', 'portrait');
 
-           // Gerar e baixar o PDF com os dados do usuário com nome do arquivo e extensão do PDF
+            // Gerar e baixar o PDF com os dados do usuário com nome do arquivo e extensão do PDF
             return $pdf->download('DadosUsuario.pdf');
         } catch (Exception $e) {
             return back()->withInput()->with('error', 'Erro ao gerar PDF do usuário!');
@@ -203,9 +208,76 @@ class UsuarioController extends Controller
 
             // Gerar e baixar o PDF com os dados do usuário com nome do arquivo e extensão do PDF
             return $pdf->download('DadosUsuario.pdf');
-        
         } catch (Exception $e) {
             return back()->withInput()->with('error', 'Erro ao gerar PDF da pesquisa!');
+        }
+    }
+
+    // Método para gerar CSV da busca de pesquisa de usuários
+    public function generateCsvSearch(Request $request)
+    {
+        try {
+            // Consulta na tabela usuários
+            $query = Usuario::query();
+
+            // Filtrar por nome se fornecido
+            if ($request->filled('nome')) {
+                // Filtrar por nome
+                $query->where('nome', 'LIKE', '%' . $request->nome . '%');
+            }
+            // Filtrar por nome se fornecido
+            if ($request->filled('email')) {
+                // Filtrar por email
+                $query->where('email', 'LIKE', '%' . $request->email . '%');
+            }
+            // Filtrar por nome se fornecido
+            if ($request->filled('data_criacao_inicio')) {
+                // Filtrar por data de criação inicial
+                $query->where('created_at', '>=', Carbon::parse($request->data_criacao_inicio));
+            }
+            // Filtrar por data de criação final se fornecido
+            if ($request->filled('data_criacao_final')) {
+                // Filtrar por data de criação final
+                $query->where('created_at', '<=', Carbon::parse($request->data_criacao_final));
+            }
+
+            // Coloca na variável os usuários do resultado da query. Ordenados por nome
+            $usuarios = $query->orderByDesc('nome')->get();
+
+            // Criar um arquivo temporario CSV
+            // Str::ulid() gera caracteres únicos para o nome do arquivo
+            $csvFileName = tempnam(sys_get_temp_dir(), 'usuarios_' . Str::ulid());
+
+            // Abrir o arquivo para escrita
+            $openFile = fopen($csvFileName, 'w');
+
+            // Adicionar a linha de cabeçalho
+            $header = ['id', 'nome', 'email', 'data_criacao'];
+
+            // Escrever o cabeçalho no arquivo CSV
+            // Cada valor separado por ;
+            fputcsv($openFile, $header, ';');
+
+            // Ler cada usuário e adicionar ao arquivo CSV
+            foreach ($usuarios as $usuario) {
+                $userArray = [
+                    'id' => $usuario->id,
+                    'nome' => $usuario->nome,
+                    'email' => $usuario->email,
+                    $usuario->created_at->format('d/m/Y H:i:s'),
+                ];
+
+                // Escrever os dados do usuário no arquivo CSV
+                fputcsv($openFile, $userArray, ';');
+            }
+
+            // Fechar o arquivo após a escrita
+            fclose($openFile);
+            // Realizar download do arquivo CSV
+            // Str::ulid() gera caracteres únicos para o nome do arquivo
+            return response()->download($csvFileName, 'usuarios_pesquisa_' . Str::ulid() . '.csv');
+        } catch (Exception $e) {
+            return back()->withInput()->with('error', 'Erro ao gerar CSV da pesquisa!');
         }
     }
 }

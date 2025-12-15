@@ -10,22 +10,31 @@
         body {
             font-family: Arial, Helvetica, sans-serif;
         }
-
-        h2 {
-            text-align: center;
-            color: #333;
-            border-bottom: 2px solid #333;
-            padding-bottom: 5px;
-        }
     </style>
 </head>
+
 <body>
     <h2>Usuarios</h2>
-    @forelse ($usuarios as $usuario)
-        <p>{{$usuario->nome}}</p>
-    @empty
-        <p>Nenhum usuário encontrado.</p>
-    @endforelse
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($usuarios as $usuario)
+                <tr>
+                    <th scope="row">{{ $usuario->id }}</th>
+                    <td>{{ $usuario->nome }}</td>
+                    <td>{{ $usuario->email }}</td>
+                </tr>
+            @empty
+                <p>Nenhum usuário encontrado.</p>
+            @endforelse
+        </tbody>
+    </table>
 </body>
 
 </html>

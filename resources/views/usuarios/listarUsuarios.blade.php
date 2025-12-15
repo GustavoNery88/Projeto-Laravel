@@ -7,16 +7,19 @@
         <div class="search-form mb-5">
             <form action="{{ route('usuarios.search') }}" method="GET">
                 <div class="d-flex gap-2 mb-3">
-                    <input type="search" name="nome" class="form-control rounded" placeholder="Nome" aria-label="Search" value="" />
-                    <input type="search" name="email" class="form-control rounded" placeholder="Email" aria-label="Search" value="" />
-                    <input type="datetime-local" name="data_criacao_inicio" class="form-control rounded" placeholder="Nome" aria-label="Search" value=""/>
-                    <input type="datetime-local" name="data_criacao_final" class="form-control rounded" placeholder="Email" aria-label="Search" value="" />
+                    <input type="search" name="nome" class="form-control rounded" placeholder="Nome" aria-label="Search"
+                        value="" />
+                    <input type="search" name="email" class="form-control rounded" placeholder="Email"
+                        aria-label="Search" value="" />
+                    <input type="datetime-local" name="data_criacao_inicio" class="form-control rounded" placeholder="Nome"
+                        aria-label="Search" value="" />
+                    <input type="datetime-local" name="data_criacao_final" class="form-control rounded" placeholder="Email"
+                        aria-label="Search" value="" />
                 </div>
                 <div>
                     <button class="btn btn-success" type="submit">Buscar</button>
-
                     <a class="btn btn-secondary" href="{{ route('usuarios.generatePdfSearch', request()->query()) }}">Gerar PDF</a>
-                    
+                    <a class="btn btn-info" href="{{ route('usuarios.generateCsvSearch', request()->query()) }}">Gerar CSV</a>
                     <a class="btn btn-warning" href="{{ route('usuarios.index') }}">Limpar</a>
                 </div>
             </form>
@@ -37,10 +40,8 @@
                         <td>{{ $usuario->nome }}</td>
                         <td>{{ $usuario->email }}</td>
                         <td class="botoes-usuarios">
-                            <a href="{{ route('usuarios.show', ['usuario' => $usuario->id]) }}"><i
-                                    class="bi bi-eye-fill acoes btn btn-primary"></i></a>
-                            <a href="{{ route('usuarios.edit', ['usuario' => $usuario->id]) }}"><i
-                                    class="bi bi-pencil-square acoes btn btn-secondary"></i></a>
+                            <a href="{{ route('usuarios.show', ['usuario' => $usuario->id]) }}"><i class="bi bi-eye-fill acoes btn btn-primary"></i></a>
+                            <a href="{{ route('usuarios.edit', ['usuario' => $usuario->id]) }}"><i class="bi bi-pencil-square acoes btn btn-secondary"></i></a>
                             <form id="delete-form-{{ $usuario->id }}"
                                 action="{{ route('usuarios.destroy', ['usuario' => $usuario->id]) }}" method="POST">
                                 @csrf

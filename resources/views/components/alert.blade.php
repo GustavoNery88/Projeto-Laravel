@@ -1,16 +1,30 @@
+{{-- SUCESSO MANUAL APÓS UMA AÇÃO (ex: cadastro, edição, exclusão) --}}
 @if (session('success'))
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             Swal.fire({
                 title: "Pronto!",
-                text: "{{ session('success') }}",
+                html: "{!! session('success') !!}",
                 icon: "success"
             });
         });
     </script>
 @endif
 
+{{-- ERRO MANUAL PARA UM ERRO ESPECÍFICO (ex: e-mails duplicados) --}}
+@if (session('error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Swal.fire({
+                title: "Erro!",
+                html: `{!! session('error') !!}`,
+                icon: "error"
+            });
+        });
+    </script>
+@endif
 
+{{-- ERRO DE VALIDAÇÃO AUTOMÁTICA PARA VARIOS ERROS --}}
 @if ($errors->any())
     @php
         $message = '';
