@@ -90,15 +90,4 @@ class ImportCsvUsuario extends Controller
             return back()->withInput()->with('error', 'Dados não importados! Erro interno.');
         }
     }
-
-    // Método para importar usuários de um arquivo CSV com jobs
-    public function importCsvJobs(ImportCsvRequest $request)
-    {
-        try {
-
-            
-        } catch (Exception $e) {
-            return back()->withInput()->with('error', 'Dados não importados! Erro interno.');
-        }
-    }
 }
