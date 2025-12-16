@@ -21,5 +21,3 @@ Route::get('/usuarios/enviar-pdf/{usuario}', [UsuarioController::class, 'enviarE
 Route::get('/usuarios/buscar', [UsuarioController::class, 'search'])->name('usuarios.search');
 Route::get('/usuarios/gerar-pdf-pesquisa', [UsuarioController::class, 'generatePdfSearch'])->name('usuarios.generatePdfSearch');
 Route::get('/usuarios/gerar-csv-pesquisa', [UsuarioController::class, 'generateCsvSearch'])->name('usuarios.generateCsvSearch');
-Route::post('/usuarios/importar-csv', [ImportCsvUsuario::class, 'importCsv'])->name('usuarios.importCsv');
-Route::post('/usuarios/importar-csv-jobs', [ImportCsvUsuario::class, 'importCsvJobs'])->name('usuarios.importCsvJobs');

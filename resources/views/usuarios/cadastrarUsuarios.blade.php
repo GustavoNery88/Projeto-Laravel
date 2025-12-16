@@ -31,28 +31,6 @@
                     <button type="submit" class="btn btn-primary">Cadastrar</button>
                 </form>
             </div>
-            <div class="search-form mb-5">
-                <h5>Poucos Registros</h5>
-                <form action="{{ route('usuarios.importCsv') }}" enctype="multipart/form-data" method="POST">
-                    @csrf
-                    <div class="input-group mb-3 d-flex gap-2">
-                        <label class="input-group-text" for="inputGroupFile01">Upload CSV</label>
-                        <input type="file" name="file" class="form-control" id="inputGroupFile01" accept=".csv">
-                        <button class="btn btn-success" type="submit">Importar</button>
-                    </div>
-                </form>
-            </div>
-            <div class="search-form">
-                <h5>Muitos Registros</h5>
-                <form action="{{ route('usuarios.importCsvJobs') }}" enctype="multipart/form-data" method="POST">
-                    @csrf
-                    <div class="input-group mb-3 d-flex gap-2">
-                        <label class="input-group-text" for="inputGroupFile01">Upload CSV</label>
-                        <input type="file" name="file" class="form-control" id="inputGroupFile01" accept=".csv">
-                        <button class="btn btn-success" type="submit">Importar</button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 @endsection
