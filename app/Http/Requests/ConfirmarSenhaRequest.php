@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UsuarioRequest extends FormRequest
+class ConfirmarSenhaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,11 +21,9 @@ class UsuarioRequest extends FormRequest
      */
     public function rules(): array
     {
-
-        $usuario = $this->route('usuario'); // Obtém o usuário da rota, se existir
         return [
-            'nome' => 'required',
-            'email' => 'required|email|unique:usuarios,email,' . ($usuario ? $usuario->id : 'null'), // Regra única para email, ignorando o usuário atual na edição
+            // Validar senhas são iguais
+             'password' => 'required|min:8|confirmed',
         ];
     }
 }

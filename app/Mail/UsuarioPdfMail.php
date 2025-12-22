@@ -14,7 +14,6 @@ class UsuarioPdfMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-
     // Criando o construtor para receber o caminho do PDF e o usuário
     public function __construct(public $pdfPath, public $usuario) {}
 

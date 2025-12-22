@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ConfirmarSenhaRequest;
 use App\Http\Requests\UsuarioRequest;
 use App\Models\Usuario;
 use Exception;
 use Illuminate\Http\Request;
-use PhpParser\Node\Stmt\TryCatch;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\UsuarioPdfMail;
+use App\Mail\UsuarioSenhaMail;
 use Carbon\Carbon;
-use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 
 class UsuarioController extends Controller
@@ -35,21 +36,65 @@ class UsuarioController extends Controller
     }
 
     // Método para armazenar um novo usuário no banco de dados
-
     public function store(UsuarioRequest $request)
     {
         try {
+
+            // Gerar uma senha aleatória, sem criptografia
+            $senhaGerada = Str::random(8);
 
             // Criar um novo usuário com os dados do formulário
             Usuario::create([
                 'nome' => $request->nome,
                 'email' => $request->email,
-                'password' => ($request->password),
+                'password' => $senhaGerada,
             ]);
+
+            // Enviar email de confirmação de cadastro
+            Mail::to($request->email)->send(new UsuarioSenhaMail($request->nome, $request->email, $senhaGerada));
 
             return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
         } catch (Exception $e) {
             return back()->withInput()->with('error', 'Erro ao cadastrar usuário!');
+        }
+    }
+
+    // Exibe a página de confirmação de senha
+    public function ativarUsuarioForm()
+    {
+        return view('usuarios.ativarUsuario');
+    }
+
+    //  Confirmar senha enviada por email
+    public function ativarUsuario(ConfirmarSenhaRequest $request)
+    {
+        try {
+            // Buscar o usuário pelo email
+            $usuario = Usuario::where('email', $request->email)->first();
+
+            if (!$usuario) {
+                return back()->witkh('error', 'Usuário não encontrado!');
+            }
+
+            // Verificar se o usuário já ativou o acesso
+            if ($usuario->ativo) {
+                return back()->with('error', 'Usuário já ativou o acesso!');
+            }
+
+            // Verificar senha atual (a que veio por e-mail)
+            if (!Hash::check($request->senha_ativação, $usuario->password)) {
+                return back()->with('error', 'Senha de ativação inválida!');
+            }
+
+            // Criar senha temporária e ativar usuário
+            $usuario->update([
+                'password' => $request->password,
+                'ativo' => true,
+            ]);
+
+            return redirect()->route('usuarios.index')->with('success', 'Senha confirmada com sucesso!');
+        } catch (Exception $e) {
+            return back()->withInput()->with('error', 'Erro ao confirmar senha!');
         }
     }
 
@@ -278,6 +323,15 @@ class UsuarioController extends Controller
             return response()->download($csvFileName, 'usuarios_pesquisa_' . Str::ulid() . '.csv');
         } catch (Exception $e) {
             return back()->withInput()->with('error', 'Erro ao gerar CSV da pesquisa!');
+        }
+    }
+
+    // Método para logar usuário
+    public function login(Request $request)
+    {
+        try {
+        } catch (Exception $e) {
+            return back()->withInput()->with('error', 'Erro ao logar usuário!');
         }
     }
 }
