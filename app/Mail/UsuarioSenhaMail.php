@@ -35,7 +35,7 @@ class UsuarioSenhaMail extends Mailable
     {
         return new Content(
             // Define os arquivos modelo de email em HTML
-            view: 'emails.recuperar-senha-report',
+            view: 'emails.usuario-senha-report',
 
             // Passando os dados para a view
             with: ['nome' => $this->nome, 'email' => $this->email, 'senhaGerada' => $this->senhaGerada],
