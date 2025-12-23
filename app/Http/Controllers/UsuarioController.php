@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ConfirmarSenhaRequest;
+use App\Http\Requests\RecuperarSenhaRequest;
+use App\Mail\RecuperarSenhaMail;
 use App\Http\Requests\UsuarioRequest;
 use App\Models\Usuario;
 use Exception;
@@ -59,44 +61,6 @@ class UsuarioController extends Controller
         }
     }
 
-    // Exibe a página de confirmação de senha
-    public function ativarUsuarioForm()
-    {
-        return view('usuarios.ativarUsuario');
-    }
-
-    //  Confirmar senha enviada por email
-    public function ativarUsuario(ConfirmarSenhaRequest $request)
-    {
-        try {
-            // Buscar o usuário pelo email
-            $usuario = Usuario::where('email', $request->email)->first();
-
-            if (!$usuario) {
-                return back()->witkh('error', 'Usuário não encontrado!');
-            }
-
-            // Verificar se o usuário já ativou o acesso
-            if ($usuario->ativo) {
-                return back()->with('error', 'Usuário já ativou o acesso!');
-            }
-
-            // Verificar senha atual (a que veio por e-mail)
-            if (!Hash::check($request->senha_ativação, $usuario->password)) {
-                return back()->with('error', 'Senha de ativação inválida!');
-            }
-
-            // Criar senha temporária e ativar usuário
-            $usuario->update([
-                'password' => $request->password,
-                'ativo' => true,
-            ]);
-
-            return redirect()->route('usuarios.index')->with('success', 'Senha confirmada com sucesso!');
-        } catch (Exception $e) {
-            return back()->withInput()->with('error', 'Erro ao confirmar senha!');
-        }
-    }
 
     // Método para exibir o formulário de edição de usuário
     public function edit(Usuario $usuario)
@@ -333,5 +297,85 @@ class UsuarioController extends Controller
         } catch (Exception $e) {
             return back()->withInput()->with('error', 'Erro ao logar usuário!');
         }
+    }
+
+    // Método para exibir o formulário de recuperação de senha
+    public function recuperarSenhaForm()
+    {
+        return view('usuarios.recuperarSenha');
+    }
+
+    // Método para enviar senha de recuperação por email
+    public function recuperarSenha(RecuperarSenhaRequest $request)
+    {
+        try {
+            // Buscar o usuário pelo email
+            $usuario = Usuario::where('email', $request->email)->first();
+
+            if (!$usuario) {
+                return back()->with('error', 'Usuário não encontrado!');
+            }
+
+            // Gerar uma senha aleatória, sem criptografia
+            $senhaGerada = Str::random(8);
+
+            // Atualizar senha do usuário
+            $usuario->update([
+                'password' => $senhaGerada,
+                'ativo' => false,
+            ]);
+
+            // Enviar email de recuperação de senha
+            Mail::to($request->email)->send(new RecuperarSenhaMail($request->nome, $request->email, $senhaGerada));
+
+            return redirect()->route('login')->with('success', 'Email de recuperação de senha enviado com sucesso!');
+        } catch (Exception $e) {
+            return back()->withInput()->with('error', 'Erro ao enviar formulário de recuperação de senha!');
+        }
+    }
+
+    // Exibe a página de confirmação de senha
+    public function ativarUsuarioForm()
+    {
+        return view('usuarios.ativarUsuario');
+    }
+
+    //  Confirmar senha enviada por email
+    public function ativarUsuario(ConfirmarSenhaRequest $request)
+    {
+        try {
+            // Buscar o usuário pelo email
+            $usuario = Usuario::where('email', $request->email)->first();
+
+            if (!$usuario) {
+                return back()->witkh('error', 'Usuário não encontrado!');
+            }
+
+            // Verificar se o usuário já ativou o acesso
+            if ($usuario->ativo) {
+                return back()->with('error', 'Usuário já ativou o acesso!');
+            }
+
+            // Verificar senha atual (a que veio por e-mail)
+            if (!Hash::check($request->senha_ativação, $usuario->password)) {
+                return back()->with('error', 'Senha de ativação inválida!');
+            }
+
+            // Criar senha temporária e ativar usuário
+            $usuario->update([
+                'password' => $request->password,
+                'ativo' => true,
+            ]);
+
+            return redirect()->route('login')->with('success', 'Senha confirmada com sucesso!');
+        } catch (Exception $e) {
+            return back()->withInput()->with('error', 'Erro ao confirmar senha!');
+        }
+    }
+
+    // Exibe a página de perfil do usuário
+    public function perfilUsuario()
+    {
+        return view('usuarios.perfilUsuario');
     }
 }

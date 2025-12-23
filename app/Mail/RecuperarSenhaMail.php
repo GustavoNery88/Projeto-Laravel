@@ -9,14 +9,16 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class UsuarioSenhaMail extends Mailable
+class RecuperarSenhaMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    // Criando o construtor para receber o nome e o email do usuário
-    public function __construct(public $nome, public $email, public $senhaGerada)
+    /**
+     * Create a new message instance.
+     */
+    public function __construct(public $nome, public $email, public $senhaGerada)   
     {
-        //
+        // 
     }
 
     /**
@@ -25,21 +27,21 @@ class UsuarioSenhaMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            // Titulo do email
-            subject: 'Senha de Acesso',
+            subject: 'Senha de Recuperação',
         );
     }
 
-    // 
+    /**
+     * Get the message content definition.
+     */
     public function content(): Content
     {
         return new Content(
-            // Define os arquivos modelo de email em HTML
+             // Define os arquivos modelo de email em HTML
             view: 'emails.recuperar-senha-report',
 
             // Passando os dados para a view
             with: ['nome' => $this->nome, 'email' => $this->email, 'senhaGerada' => $this->senhaGerada],
-        
         );
     }
 

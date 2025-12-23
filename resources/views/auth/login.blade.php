@@ -24,7 +24,7 @@
                         <div class="d-flex justify-content-between">
                             <button type="submit" class="btn btn-primary">Entrar</button>
                             <div>
-                                <a href="#">Esqueci minha senha</a> <br>
+                                <a href="{{ route('usuarios.recuperarSenhaForm') }}">Esqueci minha senha</a> <br>
                                 <a href="{{ route('usuarios.create') }}">Cadastra-se</a>
                             </div>
                         </div>

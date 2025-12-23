@@ -54,7 +54,7 @@ class AuthController extends Controller
     {
         try {
             Auth::logout();
-            return redirect()->route('usuarios.index')->with('success', 'Logout efetuado com sucesso!');
+            return redirect()->route('login')->with('success', 'Logout efetuado com sucesso!');
         } catch (Exception $e) {
             return back()->withInput()->with('error', 'Erro ao logar usuário!');
         }
