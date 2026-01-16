@@ -47,4 +47,22 @@ class Usuario extends Authenticatable implements CanResetPassword
             'password' => 'hashed',
         ];
     }
+
+     // 🔹 Cursos CRIADOS pelo usuário (1-N)
+    public function cursosCriados()
+    {
+        return $this->hasMany(Curso::class, 'id_usuario');
+    }
+
+    // 🔹 Cursos em que o usuário participa (N-N)
+    public function cursos()
+    {
+        return $this->belongsToMany(
+            Curso::class,
+            'participantes',
+            'id_usuario',
+            'id_curso'
+        );
+    }
+
 }

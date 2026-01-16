@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ImportCsvUsuario;
+use App\Http\Controllers\CursoController;
 
 
 Route::get('/', function () {
@@ -24,7 +25,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 // Rotas restritas
-
+Route::group(['middleware' => 'auth'], function () {
     Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
     Route::get('/usuarios/editar/{usuario}', [UsuarioController::class, 'edit'])->name('usuarios.edit');
     Route::put('usuarios/atualizar/{usuario}', [UsuarioController::class, 'update'])->name('usuarios.update');
@@ -36,4 +37,11 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/usuarios/gerar-pdf-pesquisa', [UsuarioController::class, 'generatePdfSearch'])->name('usuarios.generatePdfSearch');
     Route::get('/usuarios/gerar-csv-pesquisa', [UsuarioController::class, 'generateCsvSearch'])->name('usuarios.generateCsvSearch');
     Route::get('/perfil', [UsuarioController::class, 'perfilUsuario'])->name('perfil');
+    Route::get('/cursos', [CursoController::class, 'index'])->name('cursos.index');
+    Route::get('/cursos/cadastrar', [CursoController::class, 'create'])->name('cursos.create');
+    Route::post('/cursos/cadastrar', [CursoController::class, 'store'])->name('cursos.store');
+    Route::post('/cursos/editar/{curso}', [CursoController::class, 'inscreverCurso'])->name('cursos.inscreverCurso');
+    Route::get('/cursos/visualizar/{curso}', [CursoController::class, 'show'])->name('cursos.show');
+    Route::delete('/cursos/excluir/{curso}', [CursoController::class, 'destroy'])->name('cursos.destroy');
 
+});

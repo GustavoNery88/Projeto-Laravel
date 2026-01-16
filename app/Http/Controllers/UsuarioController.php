@@ -55,7 +55,7 @@ class UsuarioController extends Controller
             // Enviar email de confirmação de cadastro
             Mail::to($request->email)->send(new UsuarioSenhaMail($request->nome, $request->email, $senhaGerada));
 
-            return redirect()->route('usuarios.index')->with('success', 'Usuário cadastrado com sucesso!');
+            return redirect()->route('login')->with('success', 'Usuário cadastrado com sucesso!');
         } catch (Exception $e) {
             return back()->withInput()->with('error', 'Erro ao cadastrar usuário!');
         }

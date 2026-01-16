@@ -46,7 +46,7 @@
                                 action="{{ route('usuarios.destroy', ['usuario' => $usuario->id]) }}" method="POST">
                                 @csrf
                                 @method('delete')
-                                <button type="button" onclick="confirmDelete({{ $usuario->id }})"> <i
+                                <button type="button border-0 p-0" onclick="confirmDelete({{ $usuario->id }})"> <i
                                         class="bi bi-trash3-fill btn btn-danger"></i></button>
                             </form>
                         </td>
