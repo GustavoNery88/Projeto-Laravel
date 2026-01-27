@@ -82,4 +82,14 @@ class CursoController extends Controller
         return redirect()->route('cursos.index')->with('success', 'Curso excluído com sucesso!');
     }
 
+    public function buscar(Request $request)
+    {
+        $search = $request->search;
+
+        $cursos = Curso::where('nome', 'like', "%{$search}%")
+            ->get(['id', 'nome']);
+        return response()->json($cursos);
+    }
+
+
 }

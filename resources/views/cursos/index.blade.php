@@ -9,12 +9,11 @@
         </div>
         <div class="search-form mb-5">
             <div class="d-flex gap-2 mb-3">
-                <input id="search" type="search" class="form-control" placeholder="Buscar curso" onchange="buscarCursos()">
-
-
+                <input id="curso_nome" type="search" class="form-control" placeholder="Buscar curso"
+                    name="curso_nome">
             </div>
         </div>
-        <table class="table">
+        <table id="curso_table" class="table">
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -23,7 +22,7 @@
                     <th scope="col">Ações</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="resultado-pesquisa">
                 @forelse ($cursos as $curso)
                     <tr>
                         <th scope="row">{{ $curso->id }}</th>
@@ -71,10 +70,10 @@
                 @endforelse
             </tbody>
         </table>
-
         <div>
             {!! $cursos->withQueryString()->links('pagination::bootstrap-5') !!}
         </div>
     </div>
-
 @endsection
+
+
